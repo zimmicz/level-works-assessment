@@ -1,5 +1,5 @@
 /*
-Assesment description:
+Assessment description:
 ---------------------
 
 Create a grid of 50x50. When you click on a cell, all values in the
