@@ -8,14 +8,15 @@ be cleared. Use the programming language of your choice."
  */
 import React from "react";
 import "./index.css";
-
-const howManyTotalCells = 25;
-const howManyCellsInOneRow = 5;
+import {
+  applyChanges,
+  getInitialValues,
+  getValuesToChange,
+  shouldIBreakLine,
+} from "./utils";
 
 function App() {
-  const [values, setValues] = React.useState(() =>
-    Array.from({ length: howManyTotalCells }).map(() => 0)
-  );
+  const [values, setValues] = React.useState(getInitialValues);
   const [changed, setChanged] = useHighlight();
 
   const handleCellClick = (value: number) => () => {
@@ -27,18 +28,6 @@ function App() {
   React.useEffect(() => {
     console.log("values", values);
   }, [values]);
-
-  React.useEffect(() => {
-    if (changed.length === 0) {
-      return;
-    }
-
-    const timeout = window.setTimeout(() => {
-      setChanged([]);
-    }, 1000);
-
-    return () => window.clearTimeout(timeout);
-  }, [changed]);
 
   return (
     <>
@@ -62,7 +51,7 @@ function Value({
 }: React.HTMLAttributes<HTMLButtonElement> & { index: number }) {
   const cell = <button {...rest} />;
 
-  if (shouldIBreakLine(index, howManyCellsInOneRow)) {
+  if (shouldIBreakLine(index)) {
     return (
       <>
         <br />
@@ -72,55 +61,6 @@ function Value({
   }
 
   return cell;
-}
-
-function shouldIBreakLine(currentValue: number, desiredNumberOfCells: number) {
-  return currentValue > 0 && currentValue % desiredNumberOfCells === 0;
-}
-
-function getColumnValues(cell: number) {
-  const howManyBefore = Math.ceil(cell / howManyCellsInOneRow) || 1; // deals with 0
-  const base = cell % howManyCellsInOneRow;
-  const values: number[] = [];
-
-  for (let i = 0; i < howManyBefore; i += 1) {
-    values.push(i * howManyCellsInOneRow + base);
-  }
-
-  for (let i = 1; i <= howManyCellsInOneRow - howManyBefore; i += 1) {
-    values.push(i * howManyCellsInOneRow + cell);
-  }
-
-  return values;
-}
-
-function getRowValues(cell: number) {
-  const firstValueInARow =
-    Math.floor(cell / howManyCellsInOneRow) * howManyCellsInOneRow;
-  const values = [firstValueInARow];
-
-  for (let i = 1; i < howManyCellsInOneRow; i += 1) {
-    values.push(firstValueInARow + i);
-  }
-
-  return values;
-}
-
-function getValuesToChange(cell: number) {
-  const valuesToChange = Array.from(
-    new Set([...getColumnValues(cell), ...getRowValues(cell)])
-  );
-
-  return valuesToChange;
-}
-
-function applyChanges(values: number[], changed: number[]) {
-  const newValues = [...values];
-  for (let i = 0; i <= changed.length; i += 1) {
-    newValues[changed[i]] = newValues[changed[i]] + 1;
-  }
-
-  return newValues;
 }
 
 function useHighlight(): [
