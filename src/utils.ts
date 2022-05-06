@@ -1,32 +1,31 @@
-const howManyTotalCells = 25;
-const howManyCellsInOneRow = 5;
+const totalCells = 25;
+const cellsInOneRow = 5;
 
 function shouldIBreakLine(currentValue: number) {
-  return currentValue > 0 && currentValue % howManyCellsInOneRow === 0;
+  return currentValue > 0 && currentValue % cellsInOneRow === 0;
 }
 
 function getColumnValues(cell: number) {
-  const howManyBefore = Math.floor(cell / howManyCellsInOneRow);
-  const base = cell % howManyCellsInOneRow;
+  const howManyBefore = Math.floor(cell / cellsInOneRow);
+  const base = cell % cellsInOneRow;
   const values: number[] = [];
 
   for (let i = 0; i < howManyBefore; i += 1) {
-    values.push(i * howManyCellsInOneRow + base);
+    values.push(i * cellsInOneRow + base);
   }
 
-  for (let i = 0; i < howManyCellsInOneRow - howManyBefore; i += 1) {
-    values.push(i * howManyCellsInOneRow + cell);
+  for (let i = 0; i < cellsInOneRow - howManyBefore; i += 1) {
+    values.push(i * cellsInOneRow + cell);
   }
 
   return values;
 }
 
 function getRowValues(cell: number) {
-  const firstValueInARow =
-    Math.floor(cell / howManyCellsInOneRow) * howManyCellsInOneRow;
+  const firstValueInARow = Math.floor(cell / cellsInOneRow) * cellsInOneRow;
   const values = [firstValueInARow];
 
-  for (let i = 1; i < howManyCellsInOneRow; i += 1) {
+  for (let i = 1; i < cellsInOneRow; i += 1) {
     values.push(firstValueInARow + i);
   }
 
@@ -51,7 +50,7 @@ function applyChanges(values: number[], changed: number[]) {
 }
 
 function getInitialValues() {
-  return Array.from({ length: howManyTotalCells }).map(() => 0);
+  return Array.from({ length: totalCells }).map(() => 0);
 }
 
 export {
