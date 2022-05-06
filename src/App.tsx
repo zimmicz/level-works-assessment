@@ -7,25 +7,29 @@ are next to each other, these cells will briefly turn green and will
 be cleared. Use the programming language of your choice."
  */
 import React from "react";
+import { useFibonacci, useHighlight } from "./hooks";
 import "./index.css";
 import {
   applyChanges,
-  getCellsToCheck,
   getInitialValues,
   getNormalizedValuesToChange,
-  isFibonacciSequence,
   shouldIBreakLine,
 } from "./utils";
 
 function App() {
   const [values, setValues] = React.useState(getInitialValues);
   const [changed, setChanged] = useHighlight();
-  const [sequences, setSequences] = useFibonacci();
+  const [sequences, setSequences, reset] = useFibonacci();
 
   const handleCellClick = (value: number) => () => {
     const valuesToChange = getNormalizedValuesToChange(value);
     setChanged(valuesToChange);
   };
+
+  const getClassNames = (cell: number) => [
+    changed.includes(cell) ? "highlighted" : undefined,
+    sequences.includes(cell) ? "cleared" : undefined,
+  ];
 
   React.useEffect(() => {
     setValues((cur) => applyChanges(cur, changed, (val) => val + 1));
@@ -38,22 +42,20 @@ function App() {
   React.useEffect(() => {
     const timeout = window.setTimeout(() => {
       setValues((cur) => applyChanges(cur, sequences, () => 0));
+      reset();
     }, 1000);
 
     return () => window.clearTimeout(timeout);
-  }, [sequences]);
+  }, [sequences, reset]);
 
   return (
     <>
       {values.map((_value, i) => {
-        const classNames = [
-          changed.includes(i) ? "highlighted" : undefined,
-          sequences.includes(i) ? "cleared" : undefined,
-        ].filter(Boolean);
+        const classNames = getClassNames(i).join(" ");
 
         return (
           <Value
-            className={classNames.join(" ")}
+            className={classNames}
             key={i}
             onClick={handleCellClick(i)}
             index={i}
@@ -82,69 +84,6 @@ function Value({
   }
 
   return cell;
-}
-
-function useHighlight(): [
-  number[],
-  React.Dispatch<React.SetStateAction<number[]>>
-] {
-  const [changed, setChanged] = React.useState<number[]>([]);
-
-  React.useEffect(() => {
-    if (changed.length === 0) {
-      return;
-    }
-
-    const timeout = window.setTimeout(() => {
-      setChanged([]);
-    }, 1000);
-
-    return () => window.clearTimeout(timeout);
-  }, [changed]);
-
-  return [changed, setChanged];
-}
-
-function useFibonacci(): [
-  number[],
-  (values: number[], changed: number[]) => void
-] {
-  const [sequences, setSequences] = React.useState<number[]>([]);
-
-  const process = (values: number[], changed: number[]) => {
-    if (changed.length === 0) {
-      return;
-    }
-
-    const cellsToCheck = changed.map(getCellsToCheck).flat();
-    const fibonacciSequences = cellsToCheck
-      .map((cells) => {
-        const cellValues = cells.map((cell) => values[cell]);
-        const match = isFibonacciSequence(cellValues);
-        if (match) {
-          return cells;
-        }
-      })
-      .filter((sequence): sequence is number[] =>
-        sequence ? sequence.every((v) => typeof v === "number") : false
-      );
-
-    setSequences(fibonacciSequences.flat());
-  };
-
-  React.useEffect(() => {
-    if (sequences.length === 0) {
-      return;
-    }
-
-    const timeout = window.setTimeout(() => {
-      setSequences([]);
-    }, 1000);
-
-    return () => window.clearTimeout(timeout);
-  }, [sequences]);
-
-  return [sequences, process];
 }
 
 export default App;

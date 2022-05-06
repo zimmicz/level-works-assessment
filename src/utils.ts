@@ -1,6 +1,4 @@
-const totalCells = 25;
-const cellsInOneRow = 5;
-const fibonacciSequence = 5;
+import { cellsInOneRow, totalCells } from "./config";
 
 function shouldIBreakLine(currentValue: number) {
   return currentValue > 0 && currentValue % cellsInOneRow === 0;
@@ -74,16 +72,27 @@ function isFibonacciSequence(values: number[]) {
     return false;
   }
 
-  while (i <= values.length) {
-    if (
-      prev + values[i] !== values[i + 1] &&
-      typeof values[i + 1] === "number"
-    ) {
+  if (values.some((v) => typeof v !== "number")) {
+    return false;
+  }
+
+  while (i < values.length - 1) {
+    if (prev > values[i]) {
       return false;
     }
+
+    if (typeof values[i + 1] !== "number") {
+      return false;
+    }
+
+    if (prev + values[i] !== values[i + 1]) {
+      return false;
+    }
+
     prev = values[i];
     i += 1;
   }
+
   return true;
 }
 
@@ -92,20 +101,22 @@ function getCellsToCheck(cell: number) {
   const { row, column } = getValuesToChange(cell);
   const rowPosition = row.indexOf(cell);
   const columnPosition = column.indexOf(cell);
-
-  const rowSeq = [
-    [row[rowPosition - 2], row[rowPosition - 1], cell],
-    [row[rowPosition - 1], cell, row[rowPosition] + 1],
-    [cell, row[rowPosition + 1], row[rowPosition + 2]],
+  const positions = [
+    [-4, -3, -2, -1, 0],
+    [-3, -2, -1, 0, 1],
+    [-2, -1, 0, 1, 2],
+    [-1, 0, 1, 2, 3],
+    [0, 1, 2, 3, 4],
   ];
+  const rowPositions = positions
+    .map((pos) => pos.map((pos2) => row[pos2 + rowPosition]))
+    .filter((portion) => portion.every((v) => row.includes(v)));
 
-  const columnSeq = [
-    [column[columnPosition - 2], column[columnPosition - 1], cell],
-    [column[columnPosition - 1], cell, column[columnPosition + 1]],
-    [cell, column[columnPosition + 1], column[columnPosition + 2]],
-  ];
+  const columnPositions = positions
+    .map((pos) => pos.map((pos2) => column[pos2 + columnPosition]))
+    .filter((portion) => portion.every((v) => column.includes(v)));
 
-  const sequences = [...rowSeq, ...columnSeq].filter((values) =>
+  const sequences = [...rowPositions, ...columnPositions].filter((values) =>
     values.every((v) => typeof v === "number")
   );
 
