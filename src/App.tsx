@@ -20,7 +20,7 @@ import {
 function App() {
   const [values, setValues] = React.useState(getInitialValues);
   const [changed, setChanged] = useHighlight();
-  const sequences = useFibonacci(values, changed);
+  const [sequences, setSequences] = useFibonacci();
 
   const handleCellClick = (value: number) => () => {
     const valuesToChange = getNormalizedValuesToChange(value);
@@ -32,7 +32,15 @@ function App() {
   }, [changed]);
 
   React.useEffect(() => {
-    setValues((cur) => applyChanges(cur, sequences, () => 0));
+    setSequences(values, changed);
+  }, [values, changed]);
+
+  React.useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      setValues((cur) => applyChanges(cur, sequences, () => 0));
+    }, 1000);
+
+    return () => window.clearTimeout(timeout);
   }, [sequences]);
 
   return (
@@ -97,14 +105,13 @@ function useHighlight(): [
   return [changed, setChanged];
 }
 
-function useFibonacci(values: number[], changed: number[]) {
-  const [sequences, setSequences] = React.useState<number[][]>([]);
+function useFibonacci(): [
+  number[],
+  (values: number[], changed: number[]) => void
+] {
+  const [sequences, setSequences] = React.useState<number[]>([]);
 
-  React.useEffect(() => {
-    console.log("sequences", sequences);
-  }, [sequences]);
-
-  React.useEffect(() => {
+  const process = (values: number[], changed: number[]) => {
     if (changed.length === 0) {
       return;
     }
@@ -122,8 +129,8 @@ function useFibonacci(values: number[], changed: number[]) {
         sequence ? sequence.every((v) => typeof v === "number") : false
       );
 
-    setSequences(fibonacciSequences);
-  }, [values, changed]);
+    setSequences(fibonacciSequences.flat());
+  };
 
   React.useEffect(() => {
     if (sequences.length === 0) {
@@ -137,7 +144,7 @@ function useFibonacci(values: number[], changed: number[]) {
     return () => window.clearTimeout(timeout);
   }, [sequences]);
 
-  return sequences.flat();
+  return [sequences, process];
 }
 
 export default App;
