@@ -97,7 +97,6 @@ function isFibonacciSequence(values: number[]) {
 }
 
 function getCellsToCheck(cell: number) {
-  const seq = 3;
   const { row, column } = getValuesToChange(cell);
   const rowPosition = row.indexOf(cell);
   const columnPosition = column.indexOf(cell);
