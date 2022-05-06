@@ -16,19 +16,41 @@ function App() {
   const [values, setValues] = React.useState(() =>
     Array.from({ length: howManyTotalCells }).map(() => 0)
   );
+  const [changed, setChanged] = useHighlight();
+
   const handleCellClick = (value: number) => () => {
     const valuesToChange = getValuesToChange(value);
     setValues((cur) => applyChanges(cur, valuesToChange));
+    setChanged(valuesToChange);
   };
 
   React.useEffect(() => {
     console.log("values", values);
   }, [values]);
 
+  React.useEffect(() => {
+    if (changed.length === 0) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      setChanged([]);
+    }, 1000);
+
+    return () => window.clearTimeout(timeout);
+  }, [changed]);
+
   return (
     <>
       {values.map((_value, i) => (
-        <Value key={i} onClick={handleCellClick(i)} index={i} />
+        <Value
+          className={changed.includes(i) ? "highlighted" : undefined}
+          key={i}
+          onClick={handleCellClick(i)}
+          index={i}
+        >
+          {values[i]}
+        </Value>
       ))}
     </>
   );
@@ -37,8 +59,8 @@ function App() {
 function Value({
   index,
   ...rest
-}: React.HTMLAttributes<HTMLSpanElement> & { index: number }) {
-  const cell = <span {...rest}>{index}</span>;
+}: React.HTMLAttributes<HTMLButtonElement> & { index: number }) {
+  const cell = <button {...rest} />;
 
   if (shouldIBreakLine(index, howManyCellsInOneRow)) {
     return (
@@ -99,6 +121,27 @@ function applyChanges(values: number[], changed: number[]) {
   }
 
   return newValues;
+}
+
+function useHighlight(): [
+  number[],
+  React.Dispatch<React.SetStateAction<number[]>>
+] {
+  const [changed, setChanged] = React.useState<number[]>([]);
+
+  React.useEffect(() => {
+    if (changed.length === 0) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      setChanged([]);
+    }, 1000);
+
+    return () => window.clearTimeout(timeout);
+  }, [changed]);
+
+  return [changed, setChanged];
 }
 
 export default App;

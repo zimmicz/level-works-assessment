@@ -11,10 +11,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-span {
+button {
+  cursor: pointer;
   display: inline-block;
   height: 20px;
   width: 20px;
-  border: 1px solid tomato;
   text-align: center;
+}
+
+button.highlighted {
+  background-color: yellow;
 }
