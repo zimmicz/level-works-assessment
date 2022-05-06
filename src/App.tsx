@@ -40,7 +40,7 @@ function Value({
 }: React.HTMLAttributes<HTMLSpanElement> & { index: number }) {
   const cell = <span {...rest}>{index}</span>;
 
-  if (shouldIBreak(index, howManyCellsInOneRow)) {
+  if (shouldIBreakLine(index, howManyCellsInOneRow)) {
     return (
       <>
         <br />
@@ -52,7 +52,7 @@ function Value({
   return cell;
 }
 
-function shouldIBreak(currentValue: number, desiredNumberOfCells: number) {
+function shouldIBreakLine(currentValue: number, desiredNumberOfCells: number) {
   return currentValue > 0 && currentValue % desiredNumberOfCells === 0;
 }
 
