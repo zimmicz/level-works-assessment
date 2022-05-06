@@ -25,11 +25,14 @@ function App() {
   const handleCellClick = (value: number) => () => {
     const valuesToChange = getNormalizedValuesToChange(value);
     setChanged(valuesToChange);
-    setValues((cur) => applyChanges(cur, valuesToChange, (val) => val + 1));
   };
 
   React.useEffect(() => {
-    setValues((cur) => applyChanges(cur, sequences, (val) => 0));
+    setValues((cur) => applyChanges(cur, changed, (val) => val + 1));
+  }, [changed]);
+
+  React.useEffect(() => {
+    setValues((cur) => applyChanges(cur, sequences, () => 0));
   }, [sequences]);
 
   return (
@@ -95,8 +98,11 @@ function useHighlight(): [
 }
 
 function useFibonacci(values: number[], changed: number[]) {
-  console.log("changed", changed);
   const [sequences, setSequences] = React.useState<number[][]>([]);
+
+  React.useEffect(() => {
+    console.log("sequences", sequences);
+  }, [sequences]);
 
   React.useEffect(() => {
     if (changed.length === 0) {
@@ -106,7 +112,8 @@ function useFibonacci(values: number[], changed: number[]) {
     const cellsToCheck = changed.map(getCellsToCheck).flat();
     const fibonacciSequences = cellsToCheck
       .map((cells) => {
-        const match = isFibonacciSequence(cells.map((cell) => values[cell]));
+        const cellValues = cells.map((cell) => values[cell]);
+        const match = isFibonacciSequence(cellValues);
         if (match) {
           return cells;
         }
@@ -117,6 +124,18 @@ function useFibonacci(values: number[], changed: number[]) {
 
     setSequences(fibonacciSequences);
   }, [values, changed]);
+
+  React.useEffect(() => {
+    if (sequences.length === 0) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      setSequences([]);
+    }, 1000);
+
+    return () => window.clearTimeout(timeout);
+  }, [sequences]);
 
   return sequences.flat();
 }

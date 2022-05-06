@@ -1,5 +1,5 @@
-const totalCells = 100;
-const cellsInOneRow = 10;
+const totalCells = 25;
+const cellsInOneRow = 5;
 const fibonacciSequence = 5;
 
 function shouldIBreakLine(currentValue: number) {
@@ -69,6 +69,11 @@ function getInitialValues() {
 function isFibonacciSequence(values: number[]) {
   let [prev] = values;
   let i = 1;
+
+  if (values.lastIndexOf(0) > 0) {
+    return false;
+  }
+
   while (i <= values.length) {
     if (
       prev + values[i] !== values[i + 1] &&
