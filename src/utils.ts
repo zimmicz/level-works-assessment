@@ -109,12 +109,14 @@ function getCellsToCheck(cell: number) {
   ];
 
   const rowPositions = positions
-    .map((pos) => pos.map((pos2) => row[pos2 + rowPosition]))
-    .filter((portion) => portion.every((v) => row.includes(v)));
+    .map((sequence) => sequence.map((position) => row[position + rowPosition]))
+    .filter((sequence) => sequence.every((value) => row.includes(value)));
 
   const columnPositions = positions
-    .map((pos) => pos.map((pos2) => column[pos2 + columnPosition]))
-    .filter((portion) => portion.every((v) => column.includes(v)));
+    .map((sequence) =>
+      sequence.map((position) => column[position + columnPosition])
+    )
+    .filter((sequence) => sequence.every((value) => column.includes(value)));
 
   const sequences = [...rowPositions, ...columnPositions].filter((values) =>
     values.every((v) => typeof v === "number")
