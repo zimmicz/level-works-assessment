@@ -107,6 +107,7 @@ function getCellsToCheck(cell: number) {
     [-1, 0, 1, 2, 3],
     [0, 1, 2, 3, 4],
   ];
+
   const rowPositions = positions
     .map((pos) => pos.map((pos2) => row[pos2 + rowPosition]))
     .filter((portion) => portion.every((v) => row.includes(v)));
