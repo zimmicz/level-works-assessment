@@ -1,5 +1,6 @@
-const totalCells = 25;
-const cellsInOneRow = 5;
+const totalCells = 100;
+const cellsInOneRow = 10;
+const fibonacciSequence = 5;
 
 function shouldIBreakLine(currentValue: number) {
   return currentValue > 0 && currentValue % cellsInOneRow === 0;
@@ -33,17 +34,29 @@ function getRowValues(cell: number) {
 }
 
 function getValuesToChange(cell: number) {
-  const valuesToChange = Array.from(
-    new Set([...getColumnValues(cell), ...getRowValues(cell)])
-  );
-
-  return valuesToChange;
+  return {
+    row: getRowValues(cell),
+    column: getColumnValues(cell),
+  };
 }
 
-function applyChanges(values: number[], changed: number[]) {
+function getNormalizedValuesToChange(cell: number) {
+  const { row, column } = getValuesToChange(cell);
+
+  return Array.from(new Set([...row, ...column]));
+}
+
+function applyChanges(
+  values: number[],
+  changed: number[],
+  callback: (value: number) => number
+) {
+  if (changed.length === 0) {
+    return values;
+  }
   const newValues = [...values];
   for (let i = 0; i <= changed.length; i += 1) {
-    newValues[changed[i]] = newValues[changed[i]] + 1;
+    newValues[changed[i]] = callback(newValues[changed[i]]);
   }
 
   return newValues;
@@ -53,11 +66,54 @@ function getInitialValues() {
   return Array.from({ length: totalCells }).map(() => 0);
 }
 
+function isFibonacciSequence(values: number[]) {
+  let [prev] = values;
+  let i = 1;
+  while (i <= values.length) {
+    if (
+      prev + values[i] !== values[i + 1] &&
+      typeof values[i + 1] === "number"
+    ) {
+      return false;
+    }
+    prev = values[i];
+    i += 1;
+  }
+  return true;
+}
+
+function getCellsToCheck(cell: number) {
+  const seq = 3;
+  const { row, column } = getValuesToChange(cell);
+  const rowPosition = row.indexOf(cell);
+  const columnPosition = column.indexOf(cell);
+
+  const rowSeq = [
+    [row[rowPosition - 2], row[rowPosition - 1], cell],
+    [row[rowPosition - 1], cell, row[rowPosition] + 1],
+    [cell, row[rowPosition + 1], row[rowPosition + 2]],
+  ];
+
+  const columnSeq = [
+    [column[columnPosition - 2], column[columnPosition - 1], cell],
+    [column[columnPosition - 1], cell, column[columnPosition + 1]],
+    [cell, column[columnPosition + 1], column[columnPosition + 2]],
+  ];
+
+  const sequences = [...rowSeq, ...columnSeq].filter((values) =>
+    values.every((v) => typeof v === "number")
+  );
+
+  return sequences;
+}
+
 export {
   applyChanges,
   getInitialValues,
   getRowValues,
   getColumnValues,
   shouldIBreakLine,
-  getValuesToChange,
+  getNormalizedValuesToChange,
+  isFibonacciSequence,
+  getCellsToCheck,
 };

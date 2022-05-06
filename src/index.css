@@ -22,3 +22,7 @@ button {
 button.highlighted {
   background-color: yellow;
 }
+
+button.cleared {
+  background-color: green;
+}

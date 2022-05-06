@@ -10,37 +10,47 @@ import React from "react";
 import "./index.css";
 import {
   applyChanges,
+  getCellsToCheck,
   getInitialValues,
-  getValuesToChange,
+  getNormalizedValuesToChange,
+  isFibonacciSequence,
   shouldIBreakLine,
 } from "./utils";
 
 function App() {
   const [values, setValues] = React.useState(getInitialValues);
   const [changed, setChanged] = useHighlight();
+  const sequences = useFibonacci(values, changed);
 
   const handleCellClick = (value: number) => () => {
-    const valuesToChange = getValuesToChange(value);
-    setValues((cur) => applyChanges(cur, valuesToChange));
+    const valuesToChange = getNormalizedValuesToChange(value);
     setChanged(valuesToChange);
+    setValues((cur) => applyChanges(cur, valuesToChange, (val) => val + 1));
   };
 
   React.useEffect(() => {
-    console.log("values", values);
-  }, [values]);
+    setValues((cur) => applyChanges(cur, sequences, (val) => 0));
+  }, [sequences]);
 
   return (
     <>
-      {values.map((_value, i) => (
-        <Value
-          className={changed.includes(i) ? "highlighted" : undefined}
-          key={i}
-          onClick={handleCellClick(i)}
-          index={i}
-        >
-          {values[i]}
-        </Value>
-      ))}
+      {values.map((_value, i) => {
+        const classNames = [
+          changed.includes(i) ? "highlighted" : undefined,
+          sequences.includes(i) ? "cleared" : undefined,
+        ].filter(Boolean);
+
+        return (
+          <Value
+            className={classNames.join(" ")}
+            key={i}
+            onClick={handleCellClick(i)}
+            index={i}
+          >
+            {values[i]}
+          </Value>
+        );
+      })}
     </>
   );
 }
@@ -82,6 +92,33 @@ function useHighlight(): [
   }, [changed]);
 
   return [changed, setChanged];
+}
+
+function useFibonacci(values: number[], changed: number[]) {
+  console.log("changed", changed);
+  const [sequences, setSequences] = React.useState<number[][]>([]);
+
+  React.useEffect(() => {
+    if (changed.length === 0) {
+      return;
+    }
+
+    const cellsToCheck = changed.map(getCellsToCheck).flat();
+    const fibonacciSequences = cellsToCheck
+      .map((cells) => {
+        const match = isFibonacciSequence(cells.map((cell) => values[cell]));
+        if (match) {
+          return cells;
+        }
+      })
+      .filter((sequence): sequence is number[] =>
+        sequence ? sequence.every((v) => typeof v === "number") : false
+      );
+
+    setSequences(fibonacciSequences);
+  }, [values, changed]);
+
+  return sequences.flat();
 }
 
 export default App;
