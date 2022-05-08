@@ -36,8 +36,8 @@ function useFibonacci({
 
   const process = (values: number[][], changed: Position) => {
     const toBeChecked: Position[][] = [];
-    const rowsToCheck = getNeighboursToCheck(changed, rows - 1);
-    const columnsToCheck = getNeighboursToCheck(changed, columns - 1);
+    const rowsToCheck = getNeighboursToCheck(changed.row, rows - 1);
+    const columnsToCheck = getNeighboursToCheck(changed.column, columns - 1);
     const columnChunks = chunkify(columnsToCheck, fibonacciSequenceLength);
     const rowChunks = chunkify(rowsToCheck, fibonacciSequenceLength);
     const iterableRows = _.range(0, rows);

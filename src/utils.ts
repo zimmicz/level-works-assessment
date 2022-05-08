@@ -79,11 +79,11 @@ function chunkify(arr: number[], size: number) {
   return chunks;
 }
 
-function getNeighboursToCheck(position: Position, max: number) {
+function getNeighboursToCheck(value: Position["row"], max: number) {
   const toBeChecked = _.range(
-    position.row - fibonacciSequenceLength,
-    position.row + fibonacciSequenceLength
-  ).filter((row) => row >= 0 && row <= max);
+    value - fibonacciSequenceLength,
+    value + fibonacciSequenceLength
+  ).filter((cur) => cur >= 0 && cur <= max);
 
   return toBeChecked;
 }
