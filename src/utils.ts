@@ -9,9 +9,9 @@ function applyChanges(
   changed: Position,
   callback: (value: number) => number
 ) {
-  const newValues = values.map((cols, row) =>
-    cols.map((value, col) => {
-      if (row === changed.row || col === changed.column) {
+  const newValues = values.map((columns, row) =>
+    columns.map((value, column) => {
+      if (columnOrRowMatcher(changed)({ row, column })) {
         return callback(value);
       }
 
@@ -41,10 +41,6 @@ function isFibonacciSequence(values: number[]) {
   let i = 1;
 
   if (values.lastIndexOf(0) > 0) {
-    return false;
-  }
-
-  if (values.some((v) => typeof v !== "number")) {
     return false;
   }
 
@@ -83,10 +79,10 @@ function chunkify(arr: number[], size: number) {
   return chunks;
 }
 
-function getNeighboursToCheck(cell: Position, max: number) {
+function getNeighboursToCheck(position: Position, max: number) {
   const toBeChecked = _.range(
-    cell.row - fibonacciSequenceLength,
-    cell.row + fibonacciSequenceLength
+    position.row - fibonacciSequenceLength,
+    position.row + fibonacciSequenceLength
   ).filter((row) => row >= 0 && row <= max);
 
   return toBeChecked;

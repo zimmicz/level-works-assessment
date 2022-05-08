@@ -80,11 +80,13 @@ function useFibonacci({
     );
 
     const fibonacciSequences = toBeChecked
-      .map((cells) => {
-        const cellValues = cells.map((cell) => values[cell.row][cell.column]);
-        const match = isFibonacciSequence(cellValues);
+      .map((positions) => {
+        const suspects = positions.map(
+          (position) => values[position.row][position.column]
+        );
+        const match = isFibonacciSequence(suspects);
         if (match) {
-          return cells;
+          return positions;
         }
       })
       .filter((sequence): sequence is Position[] =>
