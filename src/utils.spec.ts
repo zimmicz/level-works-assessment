@@ -1,5 +1,6 @@
 import { expect, describe, it, vi } from "vitest";
 import {
+  chunkify,
   getCellsToCheck,
   getColumnValues,
   getNormalizedValuesToChange,
@@ -73,5 +74,16 @@ describe("isFibonacciSequence", () => {
     expect(isFibonacciSequence([0, 1, 2])).toEqual(false);
     expect(isFibonacciSequence([2, 1, 3])).toEqual(false);
     expect(isFibonacciSequence([3, 1, 2])).toEqual(false);
+  });
+});
+
+describe.only("chunkify", () => {
+  it("returns chunks of defined size", () => {
+    expect(chunkify([0, 1, 2, 3, 4, 5], 3)).toEqual([
+      [0, 1, 2],
+      [1, 2, 3],
+      [2, 3, 4],
+      [3, 4, 5],
+    ]);
   });
 });

@@ -1,4 +1,5 @@
 import { cellsInOneRow, totalCells } from "./config";
+import { Position } from "./types";
 
 function shouldIBreakLine(currentValue: number) {
   return currentValue > 0 && currentValue % cellsInOneRow === 0;
@@ -45,23 +46,42 @@ function getNormalizedValuesToChange(cell: number) {
 }
 
 function applyChanges(
-  values: number[],
-  changed: number[],
+  values: number[][],
+  changed: Position | undefined,
   callback: (value: number) => number
 ) {
-  if (changed.length === 0) {
+  if (!changed) {
     return values;
   }
-  const newValues = [...values];
-  for (let i = 0; i <= changed.length; i += 1) {
-    newValues[changed[i]] = callback(newValues[changed[i]]);
-  }
+  const newValues = values.map((cols, row) =>
+    cols.map((value, col) => {
+      if (row === changed.row || col === changed.column) {
+        return callback(value);
+      }
+
+      return value;
+    })
+  );
 
   return newValues;
 }
 
 function getInitialValues() {
   return Array.from({ length: totalCells }).map(() => 0);
+}
+
+function getInitialValues2({
+  rows,
+  columns,
+}: {
+  rows: number;
+  columns: number;
+}) {
+  const values: number[][] = Array.from({ length: rows })
+    .map(() => [])
+    .map(() => Array.from({ length: columns }).map(() => 0));
+
+  return values;
 }
 
 function isFibonacciSequence(values: number[]) {
@@ -125,6 +145,21 @@ function getCellsToCheck(cell: number) {
   return sequences;
 }
 
+function chunkify(arr: number[], size: number) {
+  const chunks = [];
+  let i = 0;
+
+  while (i < arr.length) {
+    if (typeof arr[i + size - 1] === "undefined") {
+      break;
+    }
+    chunks.push(arr.slice(i, i + size));
+    i += 1;
+  }
+
+  return chunks;
+}
+
 export {
   applyChanges,
   getInitialValues,
@@ -134,4 +169,6 @@ export {
   getNormalizedValuesToChange,
   isFibonacciSequence,
   getCellsToCheck,
+  getInitialValues2,
+  chunkify,
 };

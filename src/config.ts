@@ -1,4 +1,4 @@
-const totalCells = 2500;
-const cellsInOneRow = 50;
+const totalCells = 100;
+const cellsInOneRow = 10;
 
 export { totalCells, cellsInOneRow };

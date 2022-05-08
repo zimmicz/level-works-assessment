@@ -19,26 +19,44 @@ I assume we read left to right and top to bottom - that means 3, 2, 1, 1, 0 is n
 import React from "react";
 import { useFibonacci, useHighlight } from "./hooks";
 import "./index.css";
+import type { Position } from "./types";
 import {
   applyChanges,
   getInitialValues,
+  getInitialValues2,
   getNormalizedValuesToChange,
+  getNormalizedValuesToChange2,
   shouldIBreakLine,
 } from "./utils";
 
-function App() {
-  const [values, setValues] = React.useState(getInitialValues);
-  const [changed, setChanged] = useHighlight();
-  const [sequences, setSequences, resetSequences] = useFibonacci();
+const rows = 20;
+const columns = 20;
 
-  const handleCellClick = (value: number) => () => {
-    const valuesToChange = getNormalizedValuesToChange(value);
-    setChanged(valuesToChange);
+function App() {
+  const [values, setValues] = React.useState(() =>
+    getInitialValues2({ rows, columns })
+  );
+  const [changed, setChanged] = useHighlight();
+  const [sequences, setSequences, resetSequences] = useFibonacci({
+    rows,
+    columns,
+  });
+
+  const handleCellClick = (position: Position) => () => {
+    setChanged(position);
   };
 
-  const getClassNames = (cell: number) => [
-    changed.includes(cell) ? "highlighted" : undefined,
-    sequences.includes(cell) ? "cleared" : undefined,
+  const getClassNames = (position: Position) => [
+    changed &&
+    (changed.column === position.column || changed.row === position.row)
+      ? "highlighted"
+      : undefined,
+    sequences &&
+    sequences.find(
+      (x) => x.row === position.row || x.column === position.column
+    )
+      ? "cleared"
+      : undefined,
   ];
 
   React.useEffect(() => {
@@ -46,9 +64,13 @@ function App() {
   }, [changed]);
 
   React.useEffect(() => {
+    if (!changed) {
+      return;
+    }
     setSequences(values, changed);
   }, [values, changed]);
 
+  /*
   React.useEffect(() => {
     const timeout = window.setTimeout(() => {
       setValues((cur) => applyChanges(cur, sequences, () => 0));
@@ -57,21 +79,29 @@ function App() {
 
     return () => window.clearTimeout(timeout);
   }, [sequences, resetSequences]);
+   */
 
   return (
     <>
-      {values.map((_value, i) => {
-        const classNames = getClassNames(i).join(" ");
-
+      {values.map((row, i) => {
         return (
-          <Value
-            className={classNames}
-            key={i}
-            onClick={handleCellClick(i)}
-            index={i}
-          >
-            {values[i]}
-          </Value>
+          <React.Fragment key={i}>
+            {row.map((column, j) => {
+              const classNames = getClassNames({ row: i, column: j }).join(" ");
+              return (
+                <Value
+                  className={classNames}
+                  key={`${i}-${j}`}
+                  onClick={handleCellClick({ row: i, column: j })}
+                  row={i}
+                  column={j}
+                >
+                  {column}
+                </Value>
+              );
+            })}
+            <br />
+          </React.Fragment>
         );
       })}
     </>
@@ -79,21 +109,11 @@ function App() {
 }
 
 function Value({
-  index,
+  row,
+  column,
   ...rest
-}: React.HTMLAttributes<HTMLButtonElement> & { index: number }) {
-  const cell = <button {...rest} />;
-
-  if (shouldIBreakLine(index)) {
-    return (
-      <>
-        <br />
-        {cell}
-      </>
-    );
-  }
-
-  return cell;
+}: React.HTMLAttributes<HTMLButtonElement> & Position) {
+  return <button {...rest} />;
 }
 
 export default App;
