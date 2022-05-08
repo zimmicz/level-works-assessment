@@ -21,3 +21,7 @@ Edit `src/config.ts`.
 # Run tests
 
 `npm run test`
+
+# Alternative solution
+
+Checkout to `feat/one-dimensional-array` branch.
