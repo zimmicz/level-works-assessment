@@ -98,8 +98,6 @@ function App() {
                   className={classNames}
                   key={`${i}-${j}`}
                   onClick={handleCellClick({ row: i, column: j })}
-                  row={i}
-                  column={j}
                 >
                   {column}
                 </Value>
@@ -113,11 +111,7 @@ function App() {
   );
 }
 
-function Value({
-  row,
-  column,
-  ...rest
-}: React.HTMLAttributes<HTMLButtonElement> & Position) {
+function Value({ ...rest }: React.HTMLAttributes<HTMLButtonElement>) {
   return <button {...rest} />;
 }
 
