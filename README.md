@@ -4,7 +4,9 @@ Create a grid of 50x50. When you click on a cell, all values in the cells in the
 
 # My assumptions:
 
-Fibonacci sequence does not have to start with 0. If there are six consecutive fibonacci numbers (0, 1, 1, 2, 3, 5), they are considered two separate five numbers long sequences (0, 1, 1, 2, 3) and (1, 1, 2, 3, 5). All the six numbers will be removed. No recursion is used: if clearing the fibonacci sequence would lead to creation of another one, this wouldn't be removed. I assume we read left to right and top to bottom - that means 3, 2, 1, 1, 0 is not considered a fibonacci sequence.
+- Any sequence where f(n + 2) = f(n) + f(n + 1) is considered a Fibonacci sequence.
+- If there are six consecutive fibonacci numbers (0, 1, 1, 2, 3, 5), they are considered two separate five numbers long sequences (0, 1, 1, 2, 3) and (1, 1, 2, 3, 5). All the six numbers will be removed.
+- No recursion is used: if clearing the fibonacci sequence would lead to creation of another one, this wouldn't be removed. I assume we read left to right and top to bottom - that means 3, 2, 1, 1, 0 is not considered a fibonacci sequence.
 
 # Install dependencies
 
