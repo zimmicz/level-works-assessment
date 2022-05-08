@@ -23,7 +23,6 @@ import type { Position } from "./types";
 import {
   applyChanges,
   getInitialValues,
-  getInitialValues2,
   getNormalizedValuesToChange,
   getNormalizedValuesToChange2,
   shouldIBreakLine,
@@ -34,7 +33,7 @@ const columns = 20;
 
 function App() {
   const [values, setValues] = React.useState(() =>
-    getInitialValues2({ rows, columns })
+    getInitialValues({ rows, columns })
   );
   const [changed, setChanged] = useHighlight();
   const [sequences, setSequences, resetSequences] = useFibonacci({
@@ -53,7 +52,7 @@ function App() {
       : undefined,
     sequences &&
     sequences.find(
-      (x) => x.row === position.row || x.column === position.column
+      (x) => x.row === position.row && x.column === position.column
     )
       ? "cleared"
       : undefined,
@@ -70,22 +69,25 @@ function App() {
     setSequences(values, changed);
   }, [values, changed]);
 
-  /*
   React.useEffect(() => {
     const timeout = window.setTimeout(() => {
-      setValues((cur) => applyChanges(cur, sequences, () => 0));
+      const newValues = values;
+      sequences.forEach((position) => {
+        newValues[position.row][position.column] = 0;
+      });
+      setValues(newValues);
       resetSequences();
     }, 1000);
 
     return () => window.clearTimeout(timeout);
   }, [sequences, resetSequences]);
-   */
 
   return (
     <>
       {values.map((row, i) => {
         return (
           <React.Fragment key={i}>
+            <span style={{ width: "20px", display: "inline-block" }}>{i}</span>
             {row.map((column, j) => {
               const classNames = getClassNames({ row: i, column: j }).join(" ");
               return (

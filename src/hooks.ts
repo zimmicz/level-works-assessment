@@ -24,6 +24,14 @@ function useHighlight(): [
   return [changed, setChanged];
 }
 
+function getNeighboursToCheck(cell: Position, max: number) {
+  const toBeChecked = _.range(cell.row - 5, cell.row + 5).filter(
+    (row) => row >= 0 && row <= max
+  );
+
+  return toBeChecked;
+}
+
 function useFibonacci({
   rows,
   columns,
@@ -39,19 +47,14 @@ function useFibonacci({
     }
 
     const toBeChecked: Position[][] = [];
-    const rowsToCheck = _.range(changed.row - 5, changed.row + 5).filter(
-      (row) => row >= 0 && row <= rows
-    );
-    const columnsToCheck = _.range(
-      changed.column - 5,
-      changed.column + 5
-    ).filter((column) => column >= 0 && column <= columns);
+    const rowsToCheck = getNeighboursToCheck(changed, rows - 1);
+    const columnsToCheck = getNeighboursToCheck(changed, columns - 1);
     const columnChunks = chunkify(columnsToCheck, 5);
     const rowChunks = chunkify(rowsToCheck, 5);
-    const rows2 = _.range(0, rows);
-    const columns2 = _.range(0, columns);
+    const iterableRows = _.range(0, rows);
+    const iterableColumns = _.range(0, columns);
 
-    /* now i need all column chunks for each row in rowsToCheck so the product looks like this:
+    /* now i need all column chunks for each row in iterableRows so the product looks like this:
      * [
      * [{ row: 0, column: 0}, { row: 0, column: 1}, { row: 0, column 2 }]
      * [{ row: 1, column: 0}, { row: 1, column: 1}, { row: 1, column 2 }]
@@ -62,7 +65,7 @@ function useFibonacci({
      */
 
     toBeChecked.push(
-      ...rows2
+      ...iterableRows
         .map((row) =>
           columnChunks.map((chunk) =>
             chunk
@@ -75,7 +78,7 @@ function useFibonacci({
     );
 
     toBeChecked.push(
-      ...columns2
+      ...iterableColumns
         .map((column) =>
           rowChunks.map((chunk) =>
             chunk
@@ -89,6 +92,7 @@ function useFibonacci({
 
     const fibonacciSequences = toBeChecked
       .map((cells) => {
+        console.log(cells);
         const cellValues = cells.map((cell) => values[cell.row][cell.column]);
         const match = isFibonacciSequence(cellValues);
         if (match) {
@@ -99,6 +103,7 @@ function useFibonacci({
         sequence ? sequence.every((v) => "row" in v && "column" in v) : false
       );
 
+    console.log(toBeChecked);
     setSequences(fibonacciSequences.flat());
   };
 

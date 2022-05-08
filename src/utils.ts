@@ -1,10 +1,6 @@
 import { cellsInOneRow, totalCells } from "./config";
 import { Position } from "./types";
 
-function shouldIBreakLine(currentValue: number) {
-  return currentValue > 0 && currentValue % cellsInOneRow === 0;
-}
-
 function getColumnValues(cell: number) {
   const howManyBefore = Math.floor(cell / cellsInOneRow);
   const base = cell % cellsInOneRow;
@@ -66,11 +62,7 @@ function applyChanges(
   return newValues;
 }
 
-function getInitialValues() {
-  return Array.from({ length: totalCells }).map(() => 0);
-}
-
-function getInitialValues2({
+function getInitialValues({
   rows,
   columns,
 }: {
@@ -81,6 +73,7 @@ function getInitialValues2({
     .map(() => [])
     .map(() => Array.from({ length: columns }).map(() => 0));
 
+  console.log("values", values);
   return values;
 }
 
@@ -165,10 +158,8 @@ export {
   getInitialValues,
   getRowValues,
   getColumnValues,
-  shouldIBreakLine,
   getNormalizedValuesToChange,
   isFibonacciSequence,
   getCellsToCheck,
-  getInitialValues2,
   chunkify,
 };
