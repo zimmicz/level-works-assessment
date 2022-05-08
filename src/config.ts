@@ -1,4 +1,5 @@
-const totalCells = 100;
-const cellsInOneRow = 10;
+const rows = 20;
+const columns = 20;
+const fibonacciSequenceLength = 5;
 
-export { totalCells, cellsInOneRow };
+export { rows, columns, fibonacciSequenceLength };

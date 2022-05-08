@@ -17,19 +17,16 @@ No recursion is used: if clearing the fibonacci sequence would lead to creation 
 I assume we read left to right and top to bottom - that means 3, 2, 1, 1, 0 is not considered a fibonacci sequence.
  */
 import React from "react";
+import { columns, rows } from "./config";
 import { useFibonacci, useHighlight } from "./hooks";
 import "./index.css";
 import type { Position } from "./types";
 import {
   applyChanges,
+  columnAndRowMatcher,
+  columnOrRowMatcher,
   getInitialValues,
-  getNormalizedValuesToChange,
-  getNormalizedValuesToChange2,
-  shouldIBreakLine,
 } from "./utils";
-
-const rows = 20;
-const columns = 20;
 
 function App() {
   const [values, setValues] = React.useState(() =>
@@ -45,20 +42,23 @@ function App() {
     setChanged(position);
   };
 
-  const getClassNames = (position: Position) => [
-    changed &&
-    (changed.column === position.column || changed.row === position.row)
-      ? "highlighted"
-      : undefined,
-    sequences &&
-    sequences.find(
-      (x) => x.row === position.row && x.column === position.column
-    )
-      ? "cleared"
-      : undefined,
-  ];
+  const getClassNames = (position: Position) =>
+    [
+      changed && columnOrRowMatcher(changed)(position)
+        ? "highlighted"
+        : undefined,
+      sequences && sequences.find((pos) => columnAndRowMatcher(pos)(position))
+        ? "cleared"
+        : undefined,
+    ]
+      .filter(Boolean)
+      .join(" ");
 
   React.useEffect(() => {
+    if (!changed) {
+      return;
+    }
+
     setValues((cur) => applyChanges(cur, changed, (val) => val + 1));
   }, [changed]);
 
@@ -71,11 +71,14 @@ function App() {
 
   React.useEffect(() => {
     const timeout = window.setTimeout(() => {
-      const newValues = values;
-      sequences.forEach((position) => {
-        newValues[position.row][position.column] = 0;
+      setValues((oldValues) => {
+        const newValues = oldValues;
+        sequences.forEach((position) => {
+          newValues[position.row][position.column] = 0;
+        });
+
+        return newValues;
       });
-      setValues(newValues);
       resetSequences();
     }, 1000);
 
@@ -89,7 +92,7 @@ function App() {
           <React.Fragment key={i}>
             <span style={{ width: "20px", display: "inline-block" }}>{i}</span>
             {row.map((column, j) => {
-              const classNames = getClassNames({ row: i, column: j }).join(" ");
+              const classNames = getClassNames({ row: i, column: j });
               return (
                 <Value
                   className={classNames}

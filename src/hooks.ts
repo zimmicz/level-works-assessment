@@ -1,7 +1,8 @@
 import React from "react";
 import type { Position } from "./types";
 import _ from "lodash";
-import { chunkify, getCellsToCheck, isFibonacciSequence } from "./utils";
+import { chunkify, getNeighboursToCheck, isFibonacciSequence } from "./utils";
+import { fibonacciSequenceLength } from "./config";
 
 function useHighlight(): [
   Position | undefined,
@@ -24,14 +25,6 @@ function useHighlight(): [
   return [changed, setChanged];
 }
 
-function getNeighboursToCheck(cell: Position, max: number) {
-  const toBeChecked = _.range(cell.row - 5, cell.row + 5).filter(
-    (row) => row >= 0 && row <= max
-  );
-
-  return toBeChecked;
-}
-
 function useFibonacci({
   rows,
   columns,
@@ -42,15 +35,11 @@ function useFibonacci({
   const [sequences, setSequences] = React.useState<Position[]>([]);
 
   const process = (values: number[][], changed: Position) => {
-    if (!changed) {
-      return;
-    }
-
     const toBeChecked: Position[][] = [];
     const rowsToCheck = getNeighboursToCheck(changed, rows - 1);
     const columnsToCheck = getNeighboursToCheck(changed, columns - 1);
-    const columnChunks = chunkify(columnsToCheck, 5);
-    const rowChunks = chunkify(rowsToCheck, 5);
+    const columnChunks = chunkify(columnsToCheck, fibonacciSequenceLength);
+    const rowChunks = chunkify(rowsToCheck, fibonacciSequenceLength);
     const iterableRows = _.range(0, rows);
     const iterableColumns = _.range(0, columns);
 
@@ -92,7 +81,6 @@ function useFibonacci({
 
     const fibonacciSequences = toBeChecked
       .map((cells) => {
-        console.log(cells);
         const cellValues = cells.map((cell) => values[cell.row][cell.column]);
         const match = isFibonacciSequence(cellValues);
         if (match) {
@@ -103,7 +91,6 @@ function useFibonacci({
         sequence ? sequence.every((v) => "row" in v && "column" in v) : false
       );
 
-    console.log(toBeChecked);
     setSequences(fibonacciSequences.flat());
   };
 

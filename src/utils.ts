@@ -1,54 +1,14 @@
-import { cellsInOneRow, totalCells } from "./config";
+import _ from "lodash";
+import { fibonacciSequenceLength } from "./config";
 import { Position } from "./types";
 
-function getColumnValues(cell: number) {
-  const howManyBefore = Math.floor(cell / cellsInOneRow);
-  const base = cell % cellsInOneRow;
-  const values: number[] = [];
-
-  for (let i = 0; i < howManyBefore; i += 1) {
-    values.push(i * cellsInOneRow + base);
-  }
-
-  for (let i = 0; i < cellsInOneRow - howManyBefore; i += 1) {
-    values.push(i * cellsInOneRow + cell);
-  }
-
-  return values;
-}
-
-function getRowValues(cell: number) {
-  const firstValueInARow = Math.floor(cell / cellsInOneRow) * cellsInOneRow;
-  const values = [firstValueInARow];
-
-  for (let i = 1; i < cellsInOneRow; i += 1) {
-    values.push(firstValueInARow + i);
-  }
-
-  return values;
-}
-
-function getValuesToChange(cell: number) {
-  return {
-    row: getRowValues(cell),
-    column: getColumnValues(cell),
-  };
-}
-
-function getNormalizedValuesToChange(cell: number) {
-  const { row, column } = getValuesToChange(cell);
-
-  return Array.from(new Set([...row, ...column]));
-}
+type MatcherFn = (a: Position, b: Position) => boolean;
 
 function applyChanges(
   values: number[][],
-  changed: Position | undefined,
+  changed: Position,
   callback: (value: number) => number
 ) {
-  if (!changed) {
-    return values;
-  }
   const newValues = values.map((cols, row) =>
     cols.map((value, col) => {
       if (row === changed.row || col === changed.column) {
@@ -73,7 +33,6 @@ function getInitialValues({
     .map(() => [])
     .map(() => Array.from({ length: columns }).map(() => 0));
 
-  console.log("values", values);
   return values;
 }
 
@@ -109,35 +68,6 @@ function isFibonacciSequence(values: number[]) {
   return true;
 }
 
-function getCellsToCheck(cell: number) {
-  const { row, column } = getValuesToChange(cell);
-  const rowPosition = row.indexOf(cell);
-  const columnPosition = column.indexOf(cell);
-  const positions = [
-    [-4, -3, -2, -1, 0],
-    [-3, -2, -1, 0, 1],
-    [-2, -1, 0, 1, 2],
-    [-1, 0, 1, 2, 3],
-    [0, 1, 2, 3, 4],
-  ];
-
-  const rowPositions = positions
-    .map((sequence) => sequence.map((position) => row[position + rowPosition]))
-    .filter((sequence) => sequence.every((value) => row.includes(value)));
-
-  const columnPositions = positions
-    .map((sequence) =>
-      sequence.map((position) => column[position + columnPosition])
-    )
-    .filter((sequence) => sequence.every((value) => column.includes(value)));
-
-  const sequences = [...rowPositions, ...columnPositions].filter((values) =>
-    values.every((v) => typeof v === "number")
-  );
-
-  return sequences;
-}
-
 function chunkify(arr: number[], size: number) {
   const chunks = [];
   let i = 0;
@@ -153,13 +83,32 @@ function chunkify(arr: number[], size: number) {
   return chunks;
 }
 
+function getNeighboursToCheck(cell: Position, max: number) {
+  const toBeChecked = _.range(
+    cell.row - fibonacciSequenceLength,
+    cell.row + fibonacciSequenceLength
+  ).filter((row) => row >= 0 && row <= max);
+
+  return toBeChecked;
+}
+
+const positionMatcher =
+  (matcher: MatcherFn) => (a: Position) => (b: Position) =>
+    matcher(a, b);
+
+const columnOrRowMatcher = positionMatcher(
+  (a, b) => a.column === b.column || a.row === b.row
+);
+const columnAndRowMatcher = positionMatcher(
+  (a, b) => a.column === b.column && a.row === b.row
+);
+
 export {
+  getNeighboursToCheck,
   applyChanges,
   getInitialValues,
-  getRowValues,
-  getColumnValues,
-  getNormalizedValuesToChange,
   isFibonacciSequence,
-  getCellsToCheck,
   chunkify,
+  columnAndRowMatcher,
+  columnOrRowMatcher,
 };
