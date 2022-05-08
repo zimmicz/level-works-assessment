@@ -90,11 +90,11 @@ function App() {
       {values.map((row, i) => {
         return (
           <React.Fragment key={i}>
-            <span style={{ width: "20px", display: "inline-block" }}>{i}</span>
             {row.map((column, j) => {
               const classNames = getClassNames({ row: i, column: j });
               return (
                 <Value
+                  data-testid={`${i}-${j}`}
                   className={classNames}
                   key={`${i}-${j}`}
                   onClick={handleCellClick({ row: i, column: j })}
